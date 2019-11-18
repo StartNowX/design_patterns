@@ -12,11 +12,12 @@
 #define SINGLETON_H_
 
 #include <iostream>
+#include <mutex>
 
 
 class Singleton {
    public:
-    // version 1
+    // // version 1
     // static Singleton* GetInstance();
 
     // version 2
@@ -26,7 +27,7 @@ class Singleton {
 
    private:
     static Singleton* instance;
-    
+
     // TODO: check why version 1 do not print the infos
     class Deletor {
        public:
