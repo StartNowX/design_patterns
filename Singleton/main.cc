@@ -14,6 +14,7 @@ void test_single() {
     // version 1, not call deconstructor, memory leak
     // Singleton* test_singleton = Singleton::GetInstance();
     // test_singleton->ShowSingleOperation();
+    // test_singleton = nullptr;
 
     Singleton& test_singleton = Singleton::GetInstance();
     test_singleton.ShowSingleOperation();

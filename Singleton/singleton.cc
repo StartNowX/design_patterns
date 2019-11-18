@@ -7,10 +7,11 @@
  * @LastEditTime: 2019-08-12 00:58:19
  */
 #include "singleton.h"
-
 #include <iostream>
+#include <mutex>
+#include <atomic>
 
-// version 1
+// version 1 线程不安全版本
 // Singleton* Singleton::GetInstance() {
 //     if (nullptr == instance) {
 //         instance = new Singleton();
@@ -18,6 +19,52 @@
 //     }
 // }
 
+// // verson 2 线程安全版本, 锁的代价大
+// std::mutex g_mutex;
+// Singleton* Singleton::GetInstance() {
+//     g_mutex.lock();
+//     if (nullptr == instance) {
+//         instance = new Singleton();
+//     }
+//     g_mutex.unlock();
+//     return instance;
+// }
+
+// verson 3 双锁检查(DCL, double check lock)，由于内存问题会出现re-order的情况
+// 主要在于instance = new
+// Singleton();这句话在编译器指令里面分为三步骤（分配内存、调用构造器、指针赋值），可能出现这三个顺序re-order的情况//
+// std::mutex g_mutex;
+// Singleton* Singleton::GetInstance() {
+//     if (nullptr == instance) {
+//         g_mutex.lock();
+//         if (nullptr == instance) {
+//             instance = new Singleton();
+//         }
+//     }
+//     g_mutex.unlock();
+//     return instance;
+// }
+
+// verson 4 C++跨平台
+// C++11 跨平台
+// std::atomic<Singleton*> m_instance;
+// std::mutex m_mutex;
+// Singleton* Singleton::GetInstance() {
+//     Singleton* tmp = m_instance.load(std::memory_order_relaxed);
+//     std::atomic_thread_fence(std::memory_order_acquire);
+//     if(nullptr == tmp){
+//         std::lock_guard<std::mutex> lock(m_mutex);
+//         tmp = m_instance.load(std::memory_order_relaxed);
+//         if(nullptr == tmp){
+//             tmp = new Singleton;
+//             std::atomic_thread_fence(std::memory_order_release);
+//             m_instance.store(tmp, std::memory_order_relaxed);
+//         }
+//     }
+//     return tmp;
+// }
+
+// 最简易版本, Meyers' Singleton
 // ensure creating objective when first call this method
 Singleton& Singleton::GetInstance(){
     if (nullptr == instance) {
