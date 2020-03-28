@@ -1,14 +1,16 @@
 #include "subject.h"
 
+#include <iostream>
+
 #include "observer.h"
 
 Subject::Subject(){};
-Subject::~Subject(){};
+Subject::~Subject() { std::cout << "~Subject()" << std::endl; };
 
 // 观察者注册
-void Subject::Register(Observer* obs) { obs_list_.push_back(obs); }
+void Subject::Register(ObsPtrType obs) { obs_list_.push_back(obs); }
 
-void Subject::UnRegister(Observer* obs) {
+void Subject::UnRegister(ObsPtrType obs) {
     if (!obs_list_.empty()) {
         obs_list_.remove(obs);
     }
@@ -16,7 +18,7 @@ void Subject::UnRegister(Observer* obs) {
 
 void Subject::Notify() {
     for (auto obs : obs_list_) {
-        obs->Update(this);
+        obs->Update(shared_from_this());
     }
 }
 

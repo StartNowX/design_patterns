@@ -1,17 +1,20 @@
 #pragma
 
 #include <list>
+#include <memory>
 #include <string>
 
 using State = std::string;
 
 class Observer;
 
-class Subject {
+using ObsPtrType = std::shared_ptr<Observer>;
+
+class Subject : public std::enable_shared_from_this<Subject> {
    public:
     virtual ~Subject();
-    virtual void Register(Observer* obs);
-    virtual void UnRegister(Observer* obs);
+    virtual void Register(ObsPtrType obs);
+    virtual void UnRegister(ObsPtrType obs);
     virtual void Notify();
 
     virtual void SetState(const State& st) = 0;
@@ -22,7 +25,7 @@ class Subject {
     Subject();
 
    private:
-    std::list<Observer*> obs_list_;
+    std::list<ObsPtrType> obs_list_;
 };
 
 class ConcreteSubjectA : public Subject {
