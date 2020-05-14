@@ -7,9 +7,10 @@
  * @LastEditTime: 2019-08-12 00:58:19
  */
 #include "singleton.h"
+
+#include <atomic>
 #include <iostream>
 #include <mutex>
-#include <atomic>
 
 // version 1 线程不安全版本
 // Singleton* Singleton::GetInstance() {
@@ -30,11 +31,14 @@
 //     return instance;
 // }
 
-// verson 3 双锁检查(DCL, double check lock)，由于内存问题会出现re-order的情况
-// 主要在于instance = new
+// // verson 3 双锁检查(DCL, double check lock)，由于内存问题会出现re-order的情况
+// // 主要在于instance = new
 // Singleton();这句话在编译器指令里面分为三步骤（分配内存、调用构造器、指针赋值），可能出现这三个顺序re-order的情况//
 // std::mutex g_mutex;
 // Singleton* Singleton::GetInstance() {
+/***
+ * 如果没有按照分配内存、调用构造器、指针赋值这个顺序，可以某个线程在第一个if判断时就认为instance不是nullptr的了，就返回一个不完整的instance
+ */
 //     if (nullptr == instance) {
 //         g_mutex.lock();
 //         if (nullptr == instance) {
@@ -66,11 +70,9 @@
 
 // 最简易版本, Meyers' Singleton
 // ensure creating objective when first call this method
-Singleton& Singleton::GetInstance(){
-    if (nullptr == instance) {
-        static Singleton instance;
-        return instance;
-    }
+Singleton& Singleton::GetInstance() {
+    static Singleton instance;
+    return instance;
 }
 
 void Singleton::ShowSingleOperation() { std::cout << "U are operating single pattern." << std::endl; }
